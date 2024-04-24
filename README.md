@@ -1,3 +1,6 @@
+#  Implementando uma api gohighlevel + laravel 
+
+<br>
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
@@ -6,6 +9,20 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
+
+```php
+public function redirectToGHL()
+    {
+        $url = 'https://marketplace.gohighlevel.com/oauth/chooselocation?response_type=code&redirect_uri='
+                .env('GO_HIGH_LEVEL_REDIRECT').
+                '&client_id='.env('GO_HIGH_LEVEL_CLIENT_ID').
+                '&scope=businesses.readonly businesses.write contacts.readonly contacts.write locations.write locations.readonly '.
+                'locations/customValues.write locations/customValues.readonly locations/customFields.readonly locations/customFields.write '.
+                'locations/tags.readonly locations/tags.write opportunities.readonly '.
+                'opportunities.write oauth.readonly';
+        return redirect()->away($url);
+    }
+```    
 
 # comands
 
