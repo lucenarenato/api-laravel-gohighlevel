@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
 
 class MemberController extends BaseController
 {
-    
+
     protected $ghlService;
 
     public function __construct(GHLService $ghlService){
@@ -62,7 +62,7 @@ class MemberController extends BaseController
                 'last_page_url' => $membersByLocation->url($membersByLocation->lastPage()),
             ],
         ];
-        
+
         return $this->sendResponse($data, 'Members with details for the location.');
     }
 
@@ -73,13 +73,13 @@ class MemberController extends BaseController
             if(!$member){
                 return $this->sendError('Member does not exist.', [], 400);
             }
-            
+
             $member->name = $request->name;
             $member->email = $request->email;
             $member->phone = $request->phone;
             $member->save();
-            
-            return $this->sendResponse(new MemberResource($member), 'Members updated successfully.');            
+
+            return $this->sendResponse(new MemberResource($member), 'Members updated successfully.');
         }catch(Exception $error){
             return $this->sendError($error->getMessage(), [], 500);
         }
@@ -89,7 +89,7 @@ class MemberController extends BaseController
         try{
             $location = request()->location;
             $locationId = $location->id;
-            
+
             $reservations = Reservation::with(['checkIns', 'session', 'session.programLevel','session.programLevel.program'])
             ->whereHas('session.programLevel', function ($query) {
                 return $query->whereNull('deleted_at');
@@ -97,9 +97,9 @@ class MemberController extends BaseController
                 return $query->whereNull('deleted_at');
             })
             ->where('member_id', $member_id)->get();
-            
+
             $member_details = Member::with(['rewards', 'achievements'])->where('id', $member_id)->first();
-            
+
             $go_high_level_contact_id = DB::table('member_locations')
                 ->where('member_id', $member_id)
                 ->where('go_high_level_location_id', $location->go_high_level_location_id)
@@ -127,7 +127,7 @@ class MemberController extends BaseController
                 'memberDetails' => new MemberResource($member_details),
                 'reservations' => ReservationResource::collection($reservations)
             ];
-            
+
             return $this->sendResponse($data, 'Member details with session reservations and program');
         }catch(Exception $error){
             return $this->sendError($error->getMessage(), [], 500);
@@ -141,13 +141,13 @@ class MemberController extends BaseController
             $member->load(['reservations' => function ($query) {
                 $query->where('status', Reservation::ACTIVE);
             }]);
-            
+
             if(count($member->reservations) > 0){
                 $currentLevel = $member->reservations[0]->session->programLevel->name;
             }else{
                 $currentLevel = "----";
             }
-            
+
             return $currentLevel;
         }catch(Exception $error){
             return $this->sendError($error->getMessage(), [], 500);
@@ -168,10 +168,10 @@ class MemberController extends BaseController
                     'password' => bcrypt($password),
                     'email_verified_at' => now()
                 ]);
-    
+
                 $user->assignRole(User::MEMBER);
                 $randomNumberMT = mt_rand(100, 999);
-    
+
                 $member = Member::create([
                     'name' => $request->name,
                     'email' =>  $request->email,
@@ -196,18 +196,18 @@ class MemberController extends BaseController
                         ]);
                     }
                 }
-    
+
                 $member->locations()->sync([$location->id => [
                     'go_high_level_location_id' => $location->go_high_level_location_id,
                     'go_high_level_contact_id' => null
                 ]], false);
-    
+
                 $data =  [];
                 $data['name'] = $request->name;
                 $data['email'] = $request->email;
                 $data['password'] = $password;
                 // Notification::route('mail', $user->email)->notify(new NewMemberNotification($data));
-    
+
                 return $this->sendResponse(new MemberResource($member), 'Member created successfully.');
             }else{
                 return $this->sendError('Member already registered with this email', [], 400);
@@ -218,7 +218,7 @@ class MemberController extends BaseController
     }
 
     public function memberStatusUpdate($member_id){
-        try{ 
+        try{
             $member = Member::find($member_id);
 
             if(!$member){
@@ -292,7 +292,7 @@ class MemberController extends BaseController
                 DB::commit();
                 return true;
             }
-           
+
         } catch(\Exception $error) {
             DB::rollback();
             Log::info('===== Create New Member =====');
@@ -307,8 +307,8 @@ class MemberController extends BaseController
         $ghlIntegration = Setting::where('name', 'ghl_integration')->first();
         $tokenObj = Http::withHeaders([
             'Authorization' => 'Bearer '.$ghlIntegration['value'],
-            'Version' => '2021-07-28'                
-        ])->asForm()->post('https://services.leadconnectorhq.com/oauth/locationToken', [
+            'Version' => '2021-07-28'
+        ])->asForm()->post('https://laravel.test/oauth/locationToken', [
             'companyId' => $ghlIntegration['meta_data']['companyId'],
             'locationId' => $location_id,
         ]);
@@ -316,8 +316,8 @@ class MemberController extends BaseController
         if ($tokenObj->failed()) {
             $tokenObj->throw();
         }
-        
-        $url = 'https://services.leadconnectorhq.com/contacts/?locationId='.$location_id.'&limit=100';
+
+        $url = 'https://laravel.test/contacts/?locationId='.$location_id.'&limit=100';
 
         return $tokenObj->json();
     }
@@ -327,7 +327,7 @@ class MemberController extends BaseController
             $location = request()->location;
             $name = request()->name;
             $locationId = $location->go_high_level_location_id;
-            
+
             $ghl_contacts = $this->ghlService->getContactsByName($locationId, $name);
 
             $members = $this->getMembers($location->id);
@@ -370,7 +370,7 @@ class MemberController extends BaseController
         $locationId = $location->id;
         $program = Program::where('id', $id)->where('location_id', $locationId)->first();
         if ($program) {
-            
+
             $activeSessions = Session::with(['reservations' => function($q) {
                 $q->where('status', Reservation::ACTIVE);
             }, 'reservations.member','programLevel','program'])->whereHas('reservations', function($q) {
@@ -381,7 +381,7 @@ class MemberController extends BaseController
         } else {
             return $this->sendError('Program not found.', 404);
         }
-        
+
     }
 
     public function syncMembersByLocation($programId) {
@@ -396,46 +396,46 @@ class MemberController extends BaseController
             try {
                 $tokenObj = Http::withHeaders([
                     'Authorization' => 'Bearer '.$token,
-                    'Version' => '2021-07-28'                
-                ])->asForm()->post('https://services.leadconnectorhq.com/oauth/locationToken', [
+                    'Version' => '2021-07-28'
+                ])->asForm()->post('https://laravel.test/oauth/locationToken', [
                     'companyId' => $companyId,
                     'locationId' => $location->go_high_level_location_id,
                 ]);
-        
+
                 if ($tokenObj->failed()) {
                     return $this->sendError('Something went wrong!', json_encode($tokenObj->json()));
                 }
-    
+
                 $tokenObj = $tokenObj->json();
-                
+
                 $responseCustomField = Http::withHeaders([
                     'Accept' => 'application/json',
                     'Authorization' => 'Bearer '.$tokenObj['access_token'],
                     'Version' => '2021-07-28'
-                ])->get('https://services.leadconnectorhq.com/locations/'.$location->go_high_level_location_id.'/customFields');
-    
+                ])->get('https://laravel.test/locations/'.$location->go_high_level_location_id.'/customFields');
+
                 if ($responseCustomField->failed()) {
-                    $responseCustomField->throw();    
+                    $responseCustomField->throw();
                 }
                 $responseCustomField = $responseCustomField->json();
-    
+
                 foreach($responseCustomField['customFields'] as $customField) {
                     if($customField['name'] == 'Program Level') {
                         $reqCustomField = $customField;
                     }
                 }
-    
+
                 if($reqCustomField) {
-                    $url = 'https://services.leadconnectorhq.com/contacts/?locationId='.$location->go_high_level_location_id.'&limit=100';
+                    $url = 'https://laravel.test/contacts/?locationId='.$location->go_high_level_location_id.'&limit=100';
                     do {
                         $response = Http::withHeaders([
                             'Accept' => 'application/json',
                             'Authorization' => 'Bearer '.$tokenObj['access_token'],
                             'Version' => '2021-07-28'
                         ])->get($url);
-            
+
                         if ($response->failed()) {
-                            $response->throw();    
+                            $response->throw();
                         }
                         $response = $response->json();
                         $contacts = $response['contacts'];
@@ -477,7 +477,7 @@ class MemberController extends BaseController
                 }
                 $program->last_sync_at = now();
                 $program->save();
-    
+
             } catch(\Exception $error) {
                 return $this->sendError('Something went wrong!', $error->getMessage());
             }
@@ -498,7 +498,7 @@ class MemberController extends BaseController
                 return $this->sendError('No email found against the contact!', json_encode($tokenObj));
             } else {
                 $addMember = MemberController::createMemberFromGHL($contact, $location ,$programLevelId);
-                
+
                 if($addMember == true){
                     return $this->sendResponse('Success', 'Member synced successfully');
                 }else{
@@ -521,10 +521,10 @@ class MemberController extends BaseController
             foreach ($reservations as $reservation) {
                 $session = $reservation->session;
                 $programLevel = $session->programLevel;
-                
+
                 if($programLevel){
                     $program = $programLevel->program;
-                    
+
                     if($program){
                         if (!isset($programs[$program->id])) {
                             $programs[$program->id] = $program;
@@ -550,10 +550,10 @@ class MemberController extends BaseController
             foreach ($reservations as $reservation) {
                 $session = $reservation->session;
                 $programLevel = $session->programLevel;
-                
+
                 if($programLevel){
                     $program = $programLevel->program;
-                    
+
                     if($program){
                         $programs[] = $program->id;
                     }

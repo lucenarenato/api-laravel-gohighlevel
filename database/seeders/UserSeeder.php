@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
 
         $admin = User::create([
             'name' => 'Admin',
-            'email' => 'admin@monstro.com',
+            'email' => 'admin@teste.com',
             'password' => bcrypt('admin123!'),
             'email_verified_at' => now()
         ]);
@@ -26,18 +26,18 @@ class UserSeeder extends Seeder
         $vendors = [
             [
                 'name' => 'Vendor One',
-                'email' => 'vendor.one@monstro.com',
+                'email' => 'vendor.one@teste.com',
                 'password' => bcrypt('vendor123!'),
                 'email_verified_at' => now()
             ],
             [
                 'name' => 'Vendor Two',
-                'email' => 'vendor.two@monstro.com',
+                'email' => 'vendor.two@teste.com',
                 'password' => bcrypt('vendor123!'),
                 'email_verified_at' => now()
             ]
         ];
-    
+
         foreach ($vendors as $vendor) {
             $vendor = User::create($vendor);
             if ($vendor) {
@@ -48,18 +48,18 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name' => 'Alex',
-                'email' => 'alex.gabreil@monstro.com',
+                'email' => 'alex.gabreil@teste.com',
                 'password' => bcrypt('member123!'),
                 'email_verified_at' => now()
             ],
             [
                 'name' => 'John',
-                'email' => 'john.safari@monstro.com',
+                'email' => 'john.safari@teste.com',
                 'password' => bcrypt('member123!'),
                 'email_verified_at' => now()
             ]
         ];
-    
+
         foreach ($users as $user) {
             $user = User::create($user);
             if ($user) {

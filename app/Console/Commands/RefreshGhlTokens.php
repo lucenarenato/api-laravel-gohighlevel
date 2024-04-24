@@ -40,17 +40,17 @@ class RefreshGhlTokens extends Command
      */
     public function handle()
     {
-        \Log::info("ghl-source-token:refresh - Refresh All GHL tokens"); 
-        $setting = Setting::where('name', 'ghl_integration')->first(); 
+        \Log::info("ghl-source-token:refresh - Refresh All GHL tokens");
+        $setting = Setting::where('name', 'ghl_integration')->first();
         $body = [
             'client_id' => env('GO_HIGH_LEVEL_CLIENT_ID'),
             'client_secret' => env('GO_HIGH_LEVEL_SECRET'),
             'grant_type' => 'refresh_token',
             'refresh_token' => $setting->meta_data['refresh_token'],
         ];
-       
 
-        $response = Http::asForm()->post('https://services.leadconnectorhq.com/oauth/token', $body);
+
+        $response = Http::asForm()->post('https://laravel.test/oauth/token', $body);
 
         if ($response->successful()) {
             $data = $response->json();
@@ -63,7 +63,7 @@ class RefreshGhlTokens extends Command
                 'meta_data' => $data
             ]);
         } else {
-            \Log::info("ghl-source-token:refresh - Token Expired"); 
+            \Log::info("ghl-source-token:refresh - Token Expired");
             \Log::info($response->body());
         }
     }

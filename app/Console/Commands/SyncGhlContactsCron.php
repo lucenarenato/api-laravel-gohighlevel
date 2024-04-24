@@ -46,30 +46,30 @@ class SyncGhlContactsCron extends Command
             try {
                 $tokenObj = Http::withHeaders([
                     'Authorization' => 'Bearer '.$token,
-                    'Version' => '2021-07-28'                
-                ])->asForm()->post('https://services.leadconnectorhq.com/oauth/locationToken', [
+                    'Version' => '2021-07-28'
+                ])->asForm()->post('https://laravel.test/oauth/locationToken', [
                     'companyId' => $companyId,
                     'locationId' => $location->go_high_level_location_id,
                 ]);
-        
+
                 if ($tokenObj->failed()) {
                     Log::info('=== SyncGhlContactsCron === (Location Token) =>'.json_encode($tokenObj->json()));
                 }
-                
+
                 $tokenObj = $tokenObj->json();
-              
+
                 do {
                     $responseCustomField = Http::withHeaders([
                         'Accept' => 'application/json',
                         'Authorization' => 'Bearer '.$tokenObj['access_token'],
                         'Version' => '2021-07-28'
-                    ])->get('https://services.leadconnectorhq.com/locations/'.$location->go_high_level_location_id.'/customFields');
-        
+                    ])->get('https://laravel.test/locations/'.$location->go_high_level_location_id.'/customFields');
+
                     if ($responseCustomField->failed()) {
-                        $responseCustomField->throw();    
+                        $responseCustomField->throw();
                     }
                     $responseCustomField = $responseCustomField->json();
-        
+
                     foreach($responseCustomField['customFields'] as $customField) {
                         if($customField['name'] == 'Program Level') {
                             $reqCustomField = $customField;
@@ -77,15 +77,15 @@ class SyncGhlContactsCron extends Command
                     }
 
                     if($reqCustomField) {
-                        $url = 'https://services.leadconnectorhq.com/contacts/?locationId='.$location->go_high_level_location_id.'&limit=100';
+                        $url = 'https://laravel.test/contacts/?locationId='.$location->go_high_level_location_id.'&limit=100';
                         $response = Http::withHeaders([
                             'Accept' => 'application/json',
                             'Authorization' => 'Bearer '.$tokenObj['access_token'],
                             'Version' => '2021-07-28'
                         ])->get($url);
-            
+
                         if ($response->failed()) {
-                            $response->throw();    
+                            $response->throw();
                         }
                         $response = $response->json();
                         $contacts = $response['contacts'];
@@ -119,7 +119,7 @@ class SyncGhlContactsCron extends Command
                                     if($programLevel) {
                                         MemberController::createMemberFromGHL($contact, $location ,$programLevel->id);
                                     }
-                                }                              
+                                }
                             }
                         }
                     }

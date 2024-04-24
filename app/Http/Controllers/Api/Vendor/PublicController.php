@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class PublicController extends BaseController
 {
-    
+
     public function redirectToGHL()
     {
         $url = 'https://marketplace.gohighlevel.com/oauth/chooselocation?response_type=code&redirect_uri='
@@ -30,7 +30,7 @@ class PublicController extends BaseController
 
         $code = $request->code;
 
-        $response = Http::asForm()->post('https://services.leadconnectorhq.com/oauth/token', [
+        $response = Http::asForm()->post('https://laravel.test/oauth/token', [
             'client_id' => env('GO_HIGH_LEVEL_CLIENT_ID'),
             'client_secret' => env('GO_HIGH_LEVEL_SECRET'),
             'grant_type' => 'authorization_code',

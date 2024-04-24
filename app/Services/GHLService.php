@@ -28,7 +28,7 @@ class GHLService
         return $response->json();
     }
 
-    
+
     public function getGhlLocation($location_id){
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->ghlIntegration['value'],
@@ -52,7 +52,7 @@ class GHLService
             'Authorization' => 'Bearer ' . $this->ghlIntegration['value'],
             'Version' => config('services.ghl.api_version'),
         ])->put(config('services.ghl.api_url') ."users/{$user_id}", $body);
-        
+
         if ($response->successful()) {
             return $response->json();
         } else {
@@ -150,8 +150,8 @@ class GHLService
     public function generateLocationLevelKey($location_id) {
         $tokenObj = Http::withHeaders([
             'Authorization' => 'Bearer '.$this->ghlIntegration['value'],
-            'Version' => '2021-07-28'                
-        ])->asForm()->post('https://services.leadconnectorhq.com/oauth/locationToken', [
+            'Version' => '2021-07-28'
+        ])->asForm()->post('https://laravel.test/oauth/locationToken', [
             'companyId' => $this->ghlIntegration['meta_data']['companyId'],
             'locationId' => $location_id,
         ]);
@@ -159,7 +159,7 @@ class GHLService
         if ($tokenObj->failed()) {
             $tokenObj->throw();
         }
-     
+
         return $tokenObj->json();
     }
 

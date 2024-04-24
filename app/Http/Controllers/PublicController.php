@@ -29,10 +29,7 @@ class PublicController extends BaseController
         $url = 'https://marketplace.gohighlevel.com/oauth/chooselocation?response_type=code&redirect_uri='
                 .env('GO_HIGH_LEVEL_REDIRECT').
                 '&client_id='.env('GO_HIGH_LEVEL_CLIENT_ID').
-                '&scope=businesses.readonly businesses.write contacts.readonly contacts.write locations.write locations.readonly '.
-                'locations/customValues.write locations/customValues.readonly locations/customFields.readonly locations/customFields.write '.
-                'locations/tags.readonly locations/tags.write opportunities.readonly '.
-                'opportunities.write oauth.readonly users.readonly users.write';
+                '&scope=contacts.readonly contacts.write locations.write locations/tags.readonly locations/tags.write opportunities.readonly ';
         return redirect()->away($url);
     }
 
@@ -41,7 +38,7 @@ class PublicController extends BaseController
 
         $code = $request->code;
 
-        $response = Http::asForm()->post('https://services.leadconnectorhq.com/oauth/token', [
+        $response = Http::asForm()->post('http://laravel.test/oauth/token', [
             'client_id' => env('GO_HIGH_LEVEL_CLIENT_ID'),
             'client_secret' => env('GO_HIGH_LEVEL_SECRET'),
             'grant_type' => 'authorization_code',
@@ -61,7 +58,7 @@ class PublicController extends BaseController
                 'meta_data' => $data
             ]);
             dd('Successfully Added');
-           
+
         } else {
             Log::info("==== Error in getting the Go High Level response=====");
             Log::info($response->json());
@@ -87,7 +84,7 @@ class PublicController extends BaseController
                 $user->member->avatar = $uploadedFileName;
                 $user->member->save();
             }
-            
+
             return $this->sendResponse('Success', 'Image updated successfully.');
         }catch (Exception $error) {
             return $this->sendError($error->getMessage(), [], 500);
@@ -103,7 +100,7 @@ class PublicController extends BaseController
             $uploadedFileName = app('uploadImage')($memberId, $img, $imgPath);
             $member->avatar = $uploadedFileName;
             $member->save();
-            
+
             return $this->sendResponse('Success', 'Image updated successfully.');
         }catch (Exception $error) {
             return $this->sendError($error->getMessage(), [], 500);
@@ -113,7 +110,7 @@ class PublicController extends BaseController
     public function createVendorWebhook(Request $request){
         try{
             $ghl_user_response = $this->ghl_controller->getUserWithTypeAndRole($request->email,'account','admin');
-            
+
             if(count($ghl_user_response['users']) == 0 || !isset($ghl_user_response['users'])) {
                 return $this->sendError('Error getting users from ghl. Please email support help@mymonstro.com', [], 400);
             }
@@ -140,9 +137,9 @@ class PublicController extends BaseController
                             'password' => bcrypt($password),
                             'email_verified_at' => now()
                         ]);
-    
+
                         $user->assignRole(\App\Models\User::VENDOR);
-    
+
                         $data =  [];
                         $data['name'] = $ghl_user['name'];
                         $data['email'] = $ghl_user['email'];
@@ -184,7 +181,7 @@ class PublicController extends BaseController
                                 'vendor_id' => $vendor->id,
                                 'meta_data' => $ghl_location_data
                             ]);
-                            
+
                             DB::commit();
                             // Notification::route('mail', $ghl_user['email'])->notify(new NewVendorNotification($data));
                         }

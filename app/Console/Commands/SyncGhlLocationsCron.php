@@ -73,7 +73,7 @@ class SyncGhlLocationsCron extends Command
             'Will\'s Condo Account',
             'Won\'s Taekwondo Education',
         ];
-        
+
         $ghl_integration = Setting::where('name', 'ghl_integration')->first();
 
         $token = $ghl_integration['value'];
@@ -83,7 +83,7 @@ class SyncGhlLocationsCron extends Command
             $response =  Http::withHeaders([
                 'Authorization' => 'Bearer '.$token,
                 'Version' => '2021-07-28',
-            ])->get('https://services.leadconnectorhq.com/locations/search?limit=100&skip='.$offset.'&companyId='.$companyId);
+            ])->get('https://laravel.test/locations/search?limit=100&skip='.$offset.'&companyId='.$companyId);
 
             if($response->failed()) {
                 $response->throw();
@@ -94,8 +94,8 @@ class SyncGhlLocationsCron extends Command
             if(!isset($response_json['locations'])) {
                 return;
             }
-            
-            $allLocations = $response_json['locations'];   
+
+            $allLocations = $response_json['locations'];
             foreach($allLocations as $index => $location){
                 try {
                     if (in_array($location['name'], $ignore_locations)) {
@@ -152,7 +152,7 @@ class SyncGhlLocationsCron extends Command
                     // DB::rollBack();
                 }
             }
-            $offset = $offset + count($allLocations);  
+            $offset = $offset + count($allLocations);
         } while(count($allLocations) > 0);
     }
 }

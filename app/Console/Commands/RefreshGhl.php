@@ -31,7 +31,7 @@ class RefreshGhl extends Command
 
         $ghl_integration = Setting::where('name', 'ghl_integration')->first();
 
-        $response = Http::asForm()->post('https://services.leadconnectorhq.com/oauth/token', [
+        $response = Http::asForm()->post('https://laravel.test/oauth/token', [
             'client_id' => env('GO_HIGH_LEVEL_CLIENT_ID'),
             'client_secret' => env('GO_HIGH_LEVEL_SECRET'),
             'grant_type' => 'refresh_token',

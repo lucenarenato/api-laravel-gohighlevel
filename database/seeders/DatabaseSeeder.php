@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             PlansSeeder::class,
             ProgressStepsSeeder::class,
             ActionSeeder::class,
-            // UserSeeder::class,
+            UserSeeder::class,
             // VendorSeeder::class,
             // LocationSeeder::class,
             // MemberSeeder::class,
